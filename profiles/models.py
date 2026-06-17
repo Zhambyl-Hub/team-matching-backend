@@ -72,4 +72,4 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Профиль: {self.user.user.email}"
+        return f"Профиль: {self.user.email}"
