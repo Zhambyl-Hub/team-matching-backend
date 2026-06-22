@@ -1,8 +1,11 @@
-from rest_framework import viewsets, permissions, status
+from django.db.models import Count, Q
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Skill, InterestArea, Profile
-from .serializers import SkillSerializer, InterestAreaSerializer, ProfileSerializer
+
+from interactions.models import Interest
+from .models import InterestArea, Profile, Skill
+from .serializers import InterestAreaSerializer, ProfileSerializer, SkillSerializer
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -49,3 +52,35 @@ class ProfileViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+    @action(
+        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+    )
+    def recommendations(self, request):
+        current_profile = request.user.profile
+
+        already_liked_ids = Interest.objects.filter(
+            from_profile=current_profile
+        ).values_list("to_profile_id", flat=True)
+
+        candidates = (
+            Profile.objects.filter(is_approved=True)
+            .exclude(id=current_profile.id)
+            .exclude(id__in=already_liked_ids)
+        )
+
+        user_wants_skills = current_profile.skills_want.all()
+
+        candidates = candidates.annotate(
+            match_count=Count(
+                "skills_have", filter=Q(skills_have__in=user_wants_skills)
+            )
+        ).order_by("-match_count", "-created_at")
+
+        page = self.paginate_queryset(candidates)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(candidates, many=True)
+        return Response(serializer.data)
