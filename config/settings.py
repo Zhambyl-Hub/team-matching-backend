@@ -6,8 +6,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
+
 DEBUG = config("DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+
+ALLOWED_HOSTS = ["*", ".ngrok-free.app"]
+CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
 
 
 # Application definition
@@ -19,6 +22,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # other
+    "corsheaders",
+    "rest_framework",
     # app
     "accounts",
     "profiles",
@@ -26,6 +32,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -104,3 +111,8 @@ STATIC_URL = "static/"
 
 
 AUTH_USER_MODEL = "accounts.User"
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_HEADERS = True
+
+CORS_ALLOW_CREDENTIALS = True
