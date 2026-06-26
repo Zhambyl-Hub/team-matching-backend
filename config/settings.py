@@ -61,6 +61,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -71,7 +80,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -115,4 +123,5 @@ AUTH_USER_MODEL = "accounts.User"
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_ALL_HEADERS = True
 
+CORS_ALLOW_HEADERS = ["content-type", "authorization", "ngrok-skip-browser-warning"]
 CORS_ALLOW_CREDENTIALS = True

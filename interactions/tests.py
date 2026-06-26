@@ -17,10 +17,10 @@ class MatchSignalTests(TestCase):
             email="user_b@test.com", password="password123"
         )
 
-        # Django автоматически создает профили (если у тебя настроен сигнал на создание профиля),
-        # но так как мы его еще не писали, создадим профили вручную:
-        self.profile_a = Profile.objects.create(user=self.user_a)
-        self.profile_b = Profile.objects.create(user=self.user_b)
+        # Используем get_or_create: если сигнал уже создал профили,
+        # мы их просто получим. Если нет — создадим вручную.
+        self.profile_a, _ = Profile.objects.get_or_create(user=self.user_a)
+        self.profile_b, _ = Profile.objects.get_or_create(user=self.user_b)
 
     def test_mutual_interest_creates_match_automatically(self):
         # Проверяем, что взаимный лайк автоматически генерирует матч
